@@ -53,8 +53,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  fs/btrfs/ctree.h       |    4 ++++
  fs/btrfs/disk-io.c     |    1 +
  fs/btrfs/extent-tree.c |   13 +++++--------
- fs/btrfs/transaction.c |    2 +-
- 4 files changed, 11 insertions(+), 9 deletions(-)
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
@@ -66,7 +65,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  extern struct kmem_cache *btrfs_trans_handle_cachep;
  extern struct kmem_cache *btrfs_transaction_cachep;
  extern struct kmem_cache *btrfs_bit_radix_cachep;
-@@ -2645,6 +2646,9 @@ int btrfs_run_delayed_refs(struct btrfs_
+@@ -2660,6 +2661,9 @@ int btrfs_run_delayed_refs(struct btrfs_
  			   struct btrfs_fs_info *fs_info, unsigned long count);
  int btrfs_async_run_delayed_refs(struct btrfs_fs_info *fs_info,
  				 unsigned long count, u64 transid, int wait);
@@ -88,7 +87,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  		spin_lock(&delayed_refs->lock);
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -2494,13 +2494,10 @@ static int cleanup_extent_op(struct btrf
+@@ -2578,13 +2578,10 @@ static int cleanup_extent_op(struct btrf
  	return ret ? ret : 1;
  }
  
@@ -105,7 +104,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (head->total_ref_mod < 0) {
  		struct btrfs_space_info *space_info;
  		u64 flags;
-@@ -2574,7 +2571,7 @@ static int cleanup_ref_head(struct btrfs
+@@ -2658,7 +2655,7 @@ static int cleanup_ref_head(struct btrfs
  		}
  	}
  
@@ -114,7 +113,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  	trace_run_delayed_ref_head(fs_info, head, 0);
  	btrfs_delayed_ref_unlock(head);
-@@ -7116,7 +7113,7 @@ static noinline int check_ref_cleanup(st
+@@ -7208,7 +7205,7 @@ static noinline int check_ref_cleanup(st
  	if (head->must_insert_reserved)
  		ret = 1;
  
@@ -123,14 +122,3 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	mutex_unlock(&head->mutex);
  	btrfs_put_delayed_ref_head(head);
  	return ret;
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -542,7 +542,7 @@ again:
- 	 * and then we deadlock with somebody doing a freeze.
- 	 *
- 	 * If we are ATTACH, it means we just want to catch the current
--	 * transaction and commit it, so we needn't do sb_start_intwrite(). 
-+	 * transaction and commit it, so we needn't do sb_start_intwrite().
- 	 */
- 	if (type & __TRANS_FREEZABLE)
- 		sb_start_intwrite(fs_info->sb);
