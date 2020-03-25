@@ -8,12 +8,12 @@ can track down likely causes.
 
 Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 ---
- fs/btrfs/extent-tree.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/btrfs/extent-tree.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -7949,6 +7949,8 @@ static void dump_space_info(struct btrfs
+@@ -8210,6 +8210,8 @@ static void dump_space_info(struct btrfs
  		info->total_bytes, info->bytes_used, info->bytes_pinned,
  		info->bytes_reserved, info->bytes_may_use,
  		info->bytes_readonly);
@@ -21,8 +21,8 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 +		   percpu_counter_sum(&info->total_bytes_pinned));
  	spin_unlock(&info->lock);
  
- 	if (!dump_block_groups)
-@@ -9848,6 +9850,7 @@ int btrfs_free_block_groups(struct btrfs
+ 	DUMP_BLOCK_RSV(fs_info, global_block_rsv);
+@@ -10234,6 +10236,7 @@ int btrfs_free_block_groups(struct btrfs
  
  	while (!list_empty(&info->space_info)) {
  		int i;
@@ -30,7 +30,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  
  		space_info = list_entry(info->space_info.next,
  					struct btrfs_space_info,
-@@ -9857,9 +9860,11 @@ int btrfs_free_block_groups(struct btrfs
+@@ -10243,9 +10246,11 @@ int btrfs_free_block_groups(struct btrfs
  		 * Do not hide this behind enospc_debug, this is actually
  		 * important and indicates a real bug if this happens.
  		 */
