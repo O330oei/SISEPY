@@ -20,7 +20,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -4355,11 +4355,6 @@ static void force_metadata_allocation(st
+@@ -4359,11 +4359,6 @@ static void force_metadata_allocation(st
  	rcu_read_unlock();
  }
  
@@ -32,7 +32,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  static int should_alloc_chunk(struct btrfs_fs_info *fs_info,
  			      struct btrfs_space_info *sinfo, int force)
  {
-@@ -4590,67 +4585,6 @@ out:
+@@ -4594,67 +4589,6 @@ out:
  	return ret;
  }
  
@@ -100,7 +100,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  static void btrfs_writeback_inodes_sb_nr(struct btrfs_fs_info *fs_info,
  					 unsigned long nr_pages, int nr_items)
  {
-@@ -4965,14 +4899,14 @@ btrfs_calc_reclaim_metadata_size(struct
+@@ -4969,14 +4903,14 @@ btrfs_calc_reclaim_metadata_size(struct
  		return to_reclaim;
  
  	to_reclaim = min_t(u64, num_online_cpus() * SZ_1M, SZ_16M);
@@ -117,16 +117,16 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  		expected = div_factor_fine(space_info->total_bytes, 95);
  	else
  		expected = div_factor_fine(space_info->total_bytes, 90);
-@@ -5222,7 +5156,7 @@ static int __reserve_metadata_bytes(stru
+@@ -5226,7 +5160,7 @@ static int __reserve_metadata_bytes(stru
  		trace_btrfs_space_reservation(fs_info, "space_info",
  					      space_info->flags, orig_bytes, 1);
  		ret = 0;
 -	} else if (can_overcommit(root, space_info, orig_bytes, flush)) {
 +	} else if (btrfs_can_overcommit(root, space_info, orig_bytes, flush)) {
- 		update_bytes_may_use(space_info, orig_bytes);
+ 		update_bytes_may_use(fs_info, space_info, orig_bytes);
  		trace_btrfs_space_reservation(fs_info, "space_info",
  					      space_info->flags, orig_bytes, 1);
-@@ -5528,7 +5462,7 @@ again:
+@@ -5532,7 +5466,7 @@ again:
  		 * adding the ticket space would be a double count.
  		 */
  		if (check_overcommit &&
