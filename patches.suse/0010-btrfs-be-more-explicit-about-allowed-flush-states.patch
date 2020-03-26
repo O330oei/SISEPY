@@ -19,12 +19,12 @@ Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Acked-by: Nikolay Borisov <nborisov@suse.com>
 ---
- fs/btrfs/extent-tree.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ fs/btrfs/extent-tree.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -5256,12 +5256,18 @@ void btrfs_init_async_reclaim_work(struc
+@@ -5248,12 +5248,18 @@ void btrfs_init_async_reclaim_work(struc
  	INIT_WORK(work, btrfs_async_reclaim_metadata_space);
  }
  
@@ -44,19 +44,19 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  	spin_lock(&space_info->lock);
  	to_reclaim = btrfs_calc_reclaim_metadata_size(fs_info->extent_root,
-@@ -5272,9 +5278,10 @@ static void priority_reclaim_metadata_sp
+@@ -5264,8 +5270,10 @@ static void priority_reclaim_metadata_sp
  	}
  	spin_unlock(&space_info->lock);
  
 +	flush_state = 0;
  	do {
- 		flush_space(fs_info, space_info, to_reclaim, to_reclaim,
--			    flush_state);
+-		flush_space(fs_info, space_info, to_reclaim, flush_state);
++		flush_space(fs_info, space_info, to_reclaim,
 +			    priority_flush_states[flush_state]);
  		flush_state++;
  		spin_lock(&space_info->lock);
  		if (ticket->bytes == 0) {
-@@ -5282,15 +5289,7 @@ static void priority_reclaim_metadata_sp
+@@ -5273,15 +5281,7 @@ static void priority_reclaim_metadata_sp
  			return;
  		}
  		spin_unlock(&space_info->lock);

@@ -12,10 +12,10 @@ Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Acked-by: Nikolay Borisov <nborisov@suse.com>
 ---
- fs/btrfs/extent-tree.c |  696 -------------------------------------------------
+ fs/btrfs/extent-tree.c |  695 -------------------------------------------------
  fs/btrfs/space-info.c  |  686 ++++++++++++++++++++++++++++++++++++++++++++++++
  fs/btrfs/space-info.h  |    4 
- 3 files changed, 695 insertions(+), 691 deletions(-)
+ 3 files changed, 695 insertions(+), 690 deletions(-)
 
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
@@ -30,7 +30,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  static noinline int
  block_group_cache_done(struct btrfs_block_group_cache *cache)
-@@ -4564,688 +4560,6 @@ out:
+@@ -4564,687 +4560,6 @@ out:
  	return ret;
  }
  
@@ -245,7 +245,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -
 -static int flush_space(struct btrfs_fs_info *fs_info,
 -		       struct btrfs_space_info *space_info, u64 num_bytes,
--		       u64 orig_bytes, int state)
+-		       int state)
 -{
 -	struct btrfs_root *root = fs_info->extent_root;
 -	struct btrfs_trans_handle *trans;
@@ -270,7 +270,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -		break;
 -	case FLUSH_DELALLOC:
 -	case FLUSH_DELALLOC_WAIT:
--		shrink_delalloc(root, num_bytes * 2, orig_bytes,
+-		shrink_delalloc(root, num_bytes * 2, num_bytes,
 -				state == FLUSH_DELALLOC_WAIT);
 -		break;
 -	case FLUSH_DELAYED_REFS_NR:
@@ -317,8 +317,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -		break;
 -	}
 -
--	trace_btrfs_flush_space(fs_info, space_info->flags, num_bytes,
--				orig_bytes, state, ret);
+-	trace_btrfs_flush_space(fs_info, space_info->flags, num_bytes, state,
+-				ret);
 -	return ret;
 -}
 -
@@ -425,8 +425,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -		struct reserve_ticket *ticket;
 -		int ret;
 -
--		ret = flush_space(fs_info, space_info, to_reclaim, to_reclaim,
--				  flush_state);
+-		ret = flush_space(fs_info, space_info, to_reclaim, flush_state);
 -		spin_lock(&space_info->lock);
 -		if (list_empty(&space_info->tickets)) {
 -			space_info->flush = 0;
@@ -505,7 +504,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -
 -	flush_state = 0;
 -	do {
--		flush_space(fs_info, space_info, to_reclaim, to_reclaim,
+-		flush_space(fs_info, space_info, to_reclaim,
 -			    priority_flush_states[flush_state]);
 -		flush_state++;
 -		spin_lock(&space_info->lock);
@@ -719,7 +718,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  static struct btrfs_block_rsv *get_block_rsv(
  					const struct btrfs_trans_handle *trans,
  					const struct btrfs_root *root)
-@@ -5392,7 +4706,7 @@ int btrfs_delayed_refs_rsv_refill(struct
+@@ -5391,7 +4706,7 @@ int btrfs_delayed_refs_rsv_refill(struct
  	if (!num_bytes)
  		return 0;
  
@@ -728,7 +727,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  				     num_bytes, flush);
  	if (ret)
  		return ret;
-@@ -5524,7 +4838,7 @@ int btrfs_block_rsv_add(struct btrfs_roo
+@@ -5523,7 +4838,7 @@ int btrfs_block_rsv_add(struct btrfs_roo
  	if (num_bytes == 0)
  		return 0;
  
@@ -737,7 +736,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (!ret) {
  		block_rsv_add_bytes(block_rsv, num_bytes, 1);
  		return 0;
-@@ -5571,7 +4885,7 @@ int btrfs_block_rsv_refill(struct btrfs_
+@@ -5570,7 +4885,7 @@ int btrfs_block_rsv_refill(struct btrfs_
  	if (!ret)
  		return 0;
  
@@ -746,7 +745,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (!ret) {
  		block_rsv_add_bytes(block_rsv, num_bytes, 0);
  		return 0;
-@@ -5968,7 +5282,7 @@ int btrfs_delalloc_reserve_metadata(stru
+@@ -5967,7 +5282,7 @@ int btrfs_delalloc_reserve_metadata(stru
  	ret = btrfs_qgroup_reserve_meta_prealloc(root, qgroup_reserve, true);
  	if (ret)
  		goto out_fail;
@@ -755,7 +754,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (ret)
  		goto out_qgroup;
  
-@@ -8219,7 +7533,7 @@ again:
+@@ -8218,7 +7533,7 @@ again:
  				"BTRFS: block rsv returned %d\n", ret);
  	}
  try_reserve:
@@ -802,6 +801,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +			btrfs_wait_ordered_roots(fs_info, nr_items, 0, (u64)-1);
 +	}
 +}
++
 +
 +static inline u64 calc_reclaim_items_nr(struct btrfs_fs_info *fs_info,
 +					u64 to_reclaim)
@@ -992,7 +992,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +
 +static int flush_space(struct btrfs_fs_info *fs_info,
 +		       struct btrfs_space_info *space_info, u64 num_bytes,
-+		       u64 orig_bytes, int state)
++		       int state)
 +{
 +	struct btrfs_root *root = fs_info->extent_root;
 +	struct btrfs_trans_handle *trans;
@@ -1017,7 +1017,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +		break;
 +	case FLUSH_DELALLOC:
 +	case FLUSH_DELALLOC_WAIT:
-+		shrink_delalloc(root, num_bytes * 2, orig_bytes,
++		shrink_delalloc(root, num_bytes * 2, num_bytes,
 +				state == FLUSH_DELALLOC_WAIT);
 +		break;
 +	case FLUSH_DELAYED_REFS_NR:
@@ -1064,8 +1064,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +		break;
 +	}
 +
-+	trace_btrfs_flush_space(fs_info, space_info->flags, num_bytes,
-+				orig_bytes, state, ret);
++	trace_btrfs_flush_space(fs_info, space_info->flags, num_bytes, state,
++				ret);
 +	return ret;
 +}
 +
@@ -1172,8 +1172,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +		struct reserve_ticket *ticket;
 +		int ret;
 +
-+		ret = flush_space(fs_info, space_info, to_reclaim, to_reclaim,
-+				  flush_state);
++		ret = flush_space(fs_info, space_info, to_reclaim, flush_state);
 +		spin_lock(&space_info->lock);
 +		if (list_empty(&space_info->tickets)) {
 +			space_info->flush = 0;
@@ -1252,7 +1251,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +
 +	flush_state = 0;
 +	do {
-+		flush_space(fs_info, space_info, to_reclaim, to_reclaim,
++		flush_space(fs_info, space_info, to_reclaim,
 +			    priority_flush_states[flush_state]);
 +		flush_state++;
 +		spin_lock(&space_info->lock);
