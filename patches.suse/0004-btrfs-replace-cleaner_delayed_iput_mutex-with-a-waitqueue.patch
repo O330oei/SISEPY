@@ -88,7 +88,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -4385,10 +4385,14 @@ commit_trans:
+@@ -4402,10 +4402,14 @@ commit_trans:
  				/*
  				 * The cleaner kthread might still be doing iput
  				 * operations. Wait for it to finish so that
@@ -106,7 +106,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  				goto again;
  			} else {
  				btrfs_end_transaction(trans);
-@@ -5062,9 +5066,8 @@ static int flush_space(struct btrfs_fs_i
+@@ -5076,9 +5080,8 @@ static int flush_space(struct btrfs_fs_i
  		 * bunch of pinned space, so make sure we run the iputs before
  		 * we do our pinned bytes check below.
  		 */
@@ -119,15 +119,15 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  		break;
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -3245,6 +3245,7 @@ void btrfs_add_delayed_iput(struct inode
+@@ -3255,6 +3255,7 @@ void btrfs_add_delayed_iput(struct inode
  	if (atomic_add_unless(&inode->i_count, -1, 1))
  		return;
  
 +	atomic_inc(&fs_info->nr_delayed_iputs);
  	spin_lock(&fs_info->delayed_iput_lock);
- 	if (binode->delayed_iput_count == 0) {
- 		ASSERT(list_empty(&binode->delayed_iput));
-@@ -3259,7 +3260,6 @@ void btrfs_add_delayed_iput(struct inode
+ 	ASSERT(list_empty(&binode->delayed_iput));
+ 	list_add_tail(&binode->delayed_iput, &fs_info->delayed_iputs);
+@@ -3263,7 +3264,6 @@ void btrfs_add_delayed_iput(struct inode
  
  void btrfs_run_delayed_iputs(struct btrfs_fs_info *fs_info)
  {
@@ -135,8 +135,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	spin_lock(&fs_info->delayed_iput_lock);
  	while (!list_empty(&fs_info->delayed_iputs)) {
  		struct btrfs_inode *inode;
-@@ -3275,11 +3275,32 @@ void btrfs_run_delayed_iputs(struct btrf
- 		}
+@@ -3273,6 +3273,8 @@ void btrfs_run_delayed_iputs(struct btrf
+ 		list_del_init(&inode->delayed_iput);
  		spin_unlock(&fs_info->delayed_iput_lock);
  		iput(&inode->vfs_inode);
 +		if (atomic_dec_and_test(&fs_info->nr_delayed_iputs))
@@ -144,6 +144,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  		spin_lock(&fs_info->delayed_iput_lock);
  	}
  	spin_unlock(&fs_info->delayed_iput_lock);
+@@ -3280,6 +3282,25 @@ void btrfs_run_delayed_iputs(struct btrf
+ 		wake_up_process(fs_info->cleaner_kthread);
  }
  
 +/**
