@@ -30,12 +30,12 @@ Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Acked-by: Nikolay Borisov <nborisov@suse.com>
 ---
- fs/btrfs/extent-tree.c |    1 -
+ fs/btrfs/delalloc-space.c |    1 -
  1 file changed, 1 deletion(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -5315,7 +5315,6 @@ int btrfs_delalloc_reserve_metadata(stru
+--- a/fs/btrfs/delalloc-space.c
++++ b/fs/btrfs/delalloc-space.c
+@@ -370,7 +370,6 @@ int btrfs_delalloc_reserve_metadata(stru
  out_qgroup:
  	btrfs_qgroup_free_meta_prealloc(root, qgroup_reserve);
  out_fail:
