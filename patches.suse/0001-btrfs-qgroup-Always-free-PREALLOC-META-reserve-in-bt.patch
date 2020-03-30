@@ -108,7 +108,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
 @@ -2761,8 +2761,7 @@ int btrfs_subvolume_reserve_metadata(str
- 				     u64 *qgroup_reserved, bool use_global_rsv);
+ 				     bool use_global_rsv);
  void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
  				      struct btrfs_block_rsv *rsv);
 -void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes,
@@ -251,7 +251,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  out_noreserve:
 --- a/fs/btrfs/ioctl.c
 +++ b/fs/btrfs/ioctl.c
-@@ -1264,8 +1264,7 @@ again:
+@@ -1261,8 +1261,7 @@ again:
  		unlock_page(pages[i]);
  		put_page(pages[i]);
  	}
@@ -261,7 +261,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  	extent_changeset_free(data_reserved);
  	return i_done;
  out:
-@@ -1276,8 +1275,7 @@ out:
+@@ -1273,8 +1272,7 @@ out:
  	btrfs_delalloc_release_space(inode, data_reserved,
  			start_index << PAGE_SHIFT,
  			page_cnt << PAGE_SHIFT, true);
