@@ -57,7 +57,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  
  	btrfs_get_block_group(cache);
  
-@@ -4542,7 +4544,8 @@ void btrfs_prepare_extent_commit(struct
+@@ -4544,7 +4546,8 @@ void btrfs_prepare_extent_commit(struct
  	struct btrfs_caching_control *caching_ctl;
  	struct btrfs_block_group_cache *cache;
  
@@ -67,7 +67,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  
  	list_for_each_entry_safe(caching_ctl, next,
  				 &fs_info->caching_block_groups, list) {
-@@ -4555,7 +4558,10 @@ void btrfs_prepare_extent_commit(struct
+@@ -4557,7 +4560,10 @@ void btrfs_prepare_extent_commit(struct
  			cache->last_byte_to_unpin = caching_ctl->progress;
  		}
  	}
@@ -78,7 +78,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  	if (fs_info->pinned_extents == &fs_info->freed_extents[0])
  		fs_info->pinned_extents = &fs_info->freed_extents[1];
  	else
-@@ -7711,14 +7717,16 @@ int btrfs_free_block_groups(struct btrfs
+@@ -7713,14 +7719,16 @@ int btrfs_free_block_groups(struct btrfs
  	struct btrfs_caching_control *caching_ctl;
  	struct rb_node *n;
  
@@ -89,7 +89,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  		caching_ctl = list_entry(info->caching_block_groups.next,
  					 struct btrfs_caching_control, list);
  		list_del(&caching_ctl->list);
- 		put_caching_control(caching_ctl);
+ 		btrfs_put_caching_control(caching_ctl);
  	}
 -	up_write(&info->commit_root_sem);
 +	spin_unlock(&info->caching_block_groups_lock);
@@ -97,7 +97,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  
  	spin_lock(&info->unused_bgs_lock);
  	while (!list_empty(&info->unused_bgs)) {
-@@ -8433,7 +8441,8 @@ int btrfs_remove_block_group(struct btrf
+@@ -8435,7 +8443,8 @@ int btrfs_remove_block_group(struct btrf
  	if (block_group->cached == BTRFS_CACHE_STARTED)
  		btrfs_wait_block_group_cache_done(block_group);
  	if (block_group->has_caching_ctl) {
@@ -107,7 +107,7 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  		if (!caching_ctl) {
  			struct btrfs_caching_control *ctl;
  
-@@ -8447,7 +8456,8 @@ int btrfs_remove_block_group(struct btrf
+@@ -8449,7 +8458,8 @@ int btrfs_remove_block_group(struct btrf
  		}
  		if (caching_ctl)
  			list_del_init(&caching_ctl->list);
@@ -116,4 +116,4 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 +		up_read(&fs_info->commit_root_sem);
  		if (caching_ctl) {
  			/* Once for the caching bgs list and once for us. */
- 			put_caching_control(caching_ctl);
+ 			btrfs_put_caching_control(caching_ctl);
