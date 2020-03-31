@@ -107,7 +107,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
 
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
-@@ -2761,8 +2761,7 @@ int btrfs_subvolume_reserve_metadata(str
+@@ -2594,8 +2594,7 @@ int btrfs_subvolume_reserve_metadata(str
  				     bool use_global_rsv);
  void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
  				      struct btrfs_block_rsv *rsv);
@@ -116,7 +116,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
 +void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes);
  
  int btrfs_delalloc_reserve_metadata(struct btrfs_inode *inode, u64 num_bytes);
- int btrfs_inc_block_group_ro(struct btrfs_fs_info *fs_info,
+ void btrfs_put_block_group_cache(struct btrfs_fs_info *info);
 --- a/fs/btrfs/delalloc-space.c
 +++ b/fs/btrfs/delalloc-space.c
 @@ -407,7 +407,6 @@ void btrfs_delalloc_release_metadata(str
@@ -196,7 +196,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  out_release:
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -2119,7 +2119,7 @@ again:
+@@ -2120,7 +2120,7 @@ again:
  				  0);
  	ClearPageChecked(page);
  	set_page_dirty(page);
@@ -205,7 +205,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  out:
  	unlock_extent_cached(&BTRFS_I(inode)->io_tree, page_start, page_end,
  			     &cached_state, GFP_NOFS);
-@@ -4633,7 +4633,7 @@ again:
+@@ -4634,7 +4634,7 @@ again:
  	if (!page) {
  		btrfs_delalloc_release_space(inode, data_reserved,
  					     block_start, blocksize, true);
@@ -214,7 +214,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  		ret = -ENOMEM;
  		goto out;
  	}
-@@ -4702,7 +4702,7 @@ out_unlock:
+@@ -4703,7 +4703,7 @@ out_unlock:
  	if (ret)
  		btrfs_delalloc_release_space(inode, data_reserved, block_start,
  					     blocksize, true);
@@ -251,7 +251,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  out_noreserve:
 --- a/fs/btrfs/ioctl.c
 +++ b/fs/btrfs/ioctl.c
-@@ -1261,8 +1261,7 @@ again:
+@@ -1262,8 +1262,7 @@ again:
  		unlock_page(pages[i]);
  		put_page(pages[i]);
  	}
@@ -261,7 +261,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  	extent_changeset_free(data_reserved);
  	return i_done;
  out:
-@@ -1273,8 +1272,7 @@ out:
+@@ -1274,8 +1273,7 @@ out:
  	btrfs_delalloc_release_space(inode, data_reserved,
  			start_index << PAGE_SHIFT,
  			page_cnt << PAGE_SHIFT, true);
@@ -273,7 +273,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  
 --- a/fs/btrfs/relocation.c
 +++ b/fs/btrfs/relocation.c
-@@ -3321,7 +3321,7 @@ static int relocate_file_extent_cluster(
+@@ -3322,7 +3322,7 @@ static int relocate_file_extent_cluster(
  				btrfs_delalloc_release_metadata(BTRFS_I(inode),
  							PAGE_SIZE, true);
  				btrfs_delalloc_release_extents(BTRFS_I(inode),
@@ -282,7 +282,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  				ret = -ENOMEM;
  				goto out;
  			}
-@@ -3342,7 +3342,7 @@ static int relocate_file_extent_cluster(
+@@ -3343,7 +3343,7 @@ static int relocate_file_extent_cluster(
  				btrfs_delalloc_release_metadata(BTRFS_I(inode),
  							PAGE_SIZE, true);
  				btrfs_delalloc_release_extents(BTRFS_I(inode),
@@ -291,7 +291,7 @@ Signed-off-by: Filipe Manana <fdmanana@suse.com>
  				ret = -EIO;
  				goto out;
  			}
-@@ -3373,8 +3373,7 @@ static int relocate_file_extent_cluster(
+@@ -3374,8 +3374,7 @@ static int relocate_file_extent_cluster(
  		put_page(page);
  
  		index++;
