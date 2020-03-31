@@ -15,15 +15,15 @@ post-release.
 
 Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 ---
- fs/btrfs/block-group.c |    2 ++
+ fs/btrfs/block-group.c |    4 ++++
  fs/btrfs/ctree.h       |    1 +
  fs/btrfs/disk-io.c     |    1 +
- fs/btrfs/extent-tree.c |   18 +++++++++++++-----
- 4 files changed, 17 insertions(+), 5 deletions(-)
+ fs/btrfs/extent-tree.c |   12 +++++++++---
+ 4 files changed, 15 insertions(+), 3 deletions(-)
 
 --- a/fs/btrfs/block-group.c
 +++ b/fs/btrfs/block-group.c
-@@ -666,8 +666,10 @@ int btrfs_cache_block_group(struct btrfs
+@@ -669,8 +669,10 @@ int btrfs_cache_block_group(struct btrfs
  	}
  
  	down_write(&fs_info->commit_root_sem);
@@ -34,6 +34,22 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  	up_write(&fs_info->commit_root_sem);
  
  	btrfs_get_block_group(cache);
+@@ -849,6 +851,7 @@ int btrfs_remove_block_group(struct btrf
+ 		btrfs_wait_block_group_cache_done(block_group);
+ 	if (block_group->has_caching_ctl) {
+ 		down_write(&fs_info->commit_root_sem);
++		spin_lock(&fs_info->caching_block_groups_lock);
+ 		if (!caching_ctl) {
+ 			struct btrfs_caching_control *ctl;
+ 
+@@ -862,6 +865,7 @@ int btrfs_remove_block_group(struct btrf
+ 		}
+ 		if (caching_ctl)
+ 			list_del_init(&caching_ctl->list);
++		spin_unlock(&fs_info->caching_block_groups_lock);
+ 		up_write(&fs_info->commit_root_sem);
+ 		if (caching_ctl) {
+ 			/* Once for the caching bgs list and once for us. */
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
 @@ -677,6 +677,7 @@ struct btrfs_fs_info {
@@ -96,23 +112,3 @@ Signed-off-by: Jeff Mahoney <jeffm@suse.com>
  
  	spin_lock(&info->unused_bgs_lock);
  	while (!list_empty(&info->unused_bgs)) {
-@@ -7973,7 +7979,8 @@ int btrfs_remove_block_group(struct btrf
- 	if (block_group->cached == BTRFS_CACHE_STARTED)
- 		btrfs_wait_block_group_cache_done(block_group);
- 	if (block_group->has_caching_ctl) {
--		down_write(&fs_info->commit_root_sem);
-+		down_read(&fs_info->commit_root_sem);
-+		spin_lock(&fs_info->caching_block_groups_lock);
- 		if (!caching_ctl) {
- 			struct btrfs_caching_control *ctl;
- 
-@@ -7987,7 +7994,8 @@ int btrfs_remove_block_group(struct btrf
- 		}
- 		if (caching_ctl)
- 			list_del_init(&caching_ctl->list);
--		up_write(&fs_info->commit_root_sem);
-+		spin_unlock(&fs_info->caching_block_groups_lock);
-+		up_read(&fs_info->commit_root_sem);
- 		if (caching_ctl) {
- 			/* Once for the caching bgs list and once for us. */
- 			btrfs_put_caching_control(caching_ctl);
