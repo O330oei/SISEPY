@@ -42,7 +42,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  btrfs-$(CONFIG_BTRFS_FS_CHECK_INTEGRITY) += check-integrity.o
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
-@@ -2752,16 +2752,6 @@ enum btrfs_chunk_alloc_enum {
+@@ -2754,16 +2754,6 @@ enum btrfs_chunk_alloc_enum {
  
  int btrfs_chunk_alloc(struct btrfs_trans_handle *trans, u64 flags,
  		      enum btrfs_chunk_alloc_enum force);
@@ -59,7 +59,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  void btrfs_trans_release_metadata(struct btrfs_trans_handle *trans,
  				  struct btrfs_fs_info *fs_info);
  int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
-@@ -2774,10 +2764,6 @@ void btrfs_delalloc_release_extents(stru
+@@ -2776,10 +2766,6 @@ void btrfs_delalloc_release_extents(stru
  				    bool qgroup_free);
  
  int btrfs_delalloc_reserve_metadata(struct btrfs_inode *inode, u64 num_bytes);
@@ -119,7 +119,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +			data_sinfo->force_alloc = CHUNK_ALLOC_FORCE;
 +			spin_unlock(&data_sinfo->lock);
 +
-+			alloc_target = btrfs_get_alloc_profile(root, 1);
++			alloc_target = btrfs_data_alloc_profile(fs_info);
 +			/*
 +			 * It is ugly that we don't call nolock join
 +			 * transaction for the free space inode case here.
@@ -602,8 +602,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  #undef SCRAMBLE_DELAYED_REFS
  
-@@ -4068,213 +4069,6 @@ u64 btrfs_get_alloc_profile(struct btrfs
- 	return ret;
+@@ -4083,213 +4084,6 @@ u64 btrfs_system_alloc_profile(struct bt
+ 	return get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_SYSTEM);
  }
  
 -int btrfs_alloc_data_chunk_ondemand(struct btrfs_inode *inode, u64 bytes)
@@ -646,7 +646,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -			data_sinfo->force_alloc = CHUNK_ALLOC_FORCE;
 -			spin_unlock(&data_sinfo->lock);
 -alloc:
--			alloc_target = btrfs_get_alloc_profile(root, 1);
+-			alloc_target = btrfs_data_alloc_profile(fs_info);
 -			/*
 -			 * It is ugly that we don't call nolock join
 -			 * transaction for the free space inode case here.
@@ -816,7 +816,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  static void force_metadata_allocation(struct btrfs_fs_info *info)
  {
  	struct list_head *head = &info->space_info;
-@@ -4518,41 +4312,6 @@ out:
+@@ -4532,41 +4326,6 @@ out:
  	return ret;
  }
  
@@ -858,7 +858,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  void btrfs_trans_release_metadata(struct btrfs_trans_handle *trans,
  				  struct btrfs_fs_info *fs_info)
  {
-@@ -4630,256 +4389,6 @@ void btrfs_subvolume_release_metadata(st
+@@ -4644,256 +4403,6 @@ void btrfs_subvolume_release_metadata(st
  	btrfs_block_rsv_release(fs_info, rsv, (u64)-1);
  }
  

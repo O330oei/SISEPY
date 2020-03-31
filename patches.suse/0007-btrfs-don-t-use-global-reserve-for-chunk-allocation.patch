@@ -35,7 +35,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
-@@ -2807,7 +2807,8 @@ enum btrfs_flush_state {
+@@ -2809,7 +2809,8 @@ enum btrfs_flush_state {
  	FLUSH_DELALLOC		=	5,
  	FLUSH_DELALLOC_WAIT	=	6,
  	ALLOC_CHUNK		=	7,
@@ -47,7 +47,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  int btrfs_alloc_data_chunk_ondemand(struct btrfs_inode *inode, u64 bytes);
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
-@@ -4521,7 +4521,6 @@ static inline u64 calc_global_rsv_need_s
+@@ -4531,7 +4531,6 @@ static inline u64 calc_global_rsv_need_s
  static int should_alloc_chunk(struct btrfs_fs_info *fs_info,
  			      struct btrfs_space_info *sinfo, int force)
  {
@@ -55,7 +55,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	u64 num_bytes = sinfo->total_bytes - sinfo->bytes_readonly;
  	u64 num_allocated = sinfo->bytes_used + sinfo->bytes_reserved + sinfo->bytes_pinned;
  	u64 thresh;
-@@ -4530,14 +4529,6 @@ static int should_alloc_chunk(struct btr
+@@ -4540,14 +4539,6 @@ static int should_alloc_chunk(struct btr
  		return 1;
  
  	/*
@@ -70,7 +70,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	 * in limited mode, we want to have some free space up to
  	 * about 1% of the FS size.
  	 */
-@@ -5070,13 +5061,15 @@ static int flush_space(struct btrfs_fs_i
+@@ -5078,6 +5069,7 @@ static int flush_space(struct btrfs_fs_i
  		btrfs_end_transaction(trans);
  		break;
  	case ALLOC_CHUNK:
@@ -78,16 +78,17 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  		trans = btrfs_join_transaction(root);
  		if (IS_ERR(trans)) {
  			ret = PTR_ERR(trans);
- 			break;
+@@ -5085,7 +5077,8 @@ static int flush_space(struct btrfs_fs_i
  		}
- 		ret = do_chunk_alloc(trans, btrfs_get_alloc_profile(root, 0),
+ 		ret = do_chunk_alloc(trans,
+ 				     btrfs_metadata_alloc_profile(fs_info),
 -				     CHUNK_ALLOC_NO_FORCE);
 +				     (state == ALLOC_CHUNK) ?
 +				     CHUNK_ALLOC_NO_FORCE : CHUNK_ALLOC_FORCE);
  		btrfs_end_transaction(trans);
  		if (ret > 0 || ret == -ENOSPC)
  			ret = 0;
-@@ -5223,6 +5216,19 @@ static void btrfs_async_reclaim_metadata
+@@ -5231,6 +5224,19 @@ static void btrfs_async_reclaim_metadata
  				commit_cycles--;
  		}
  

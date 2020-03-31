@@ -19,7 +19,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
-@@ -2770,6 +2770,28 @@ enum btrfs_flush_state {
+@@ -2772,6 +2772,28 @@ enum btrfs_flush_state {
  	COMMIT_TRANS		=	9,
  };
  
@@ -77,7 +77,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
   * Declare a helper function to detect underflow of various space info members
   */
  #define DECLARE_SPACE_INFO_UPDATE(name)					\
-@@ -102,8 +82,6 @@ static int alloc_reserved_tree_block(str
+@@ -106,8 +86,6 @@ static int alloc_reserved_tree_block(str
  				     u64 parent, u64 root_objectid,
  				     u64 flags, struct btrfs_disk_key *key,
  				     int level, struct btrfs_key *ins);
@@ -86,7 +86,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  static int find_next_key(struct btrfs_path *path, int level,
  			 struct btrfs_key *key);
  static void dump_space_info(struct btrfs_fs_info *fs_info,
-@@ -4355,7 +4333,7 @@ alloc:
+@@ -4368,7 +4346,7 @@ alloc:
  			if (IS_ERR(trans))
  				return PTR_ERR(trans);
  
@@ -95,7 +95,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  					     CHUNK_ALLOC_NO_FORCE);
  			btrfs_end_transaction(trans);
  			if (ret < 0) {
-@@ -4637,8 +4615,8 @@ void check_system_chunk(struct btrfs_tra
+@@ -4649,8 +4627,8 @@ void check_system_chunk(struct btrfs_tra
   *    - return 1 if it successfully allocates a chunk,
   *    - return errors including -ENOSPC otherwise.
   */
@@ -106,16 +106,16 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  {
  	struct btrfs_fs_info *fs_info = trans->fs_info;
  	struct btrfs_space_info *space_info;
-@@ -5086,7 +5064,7 @@ static int flush_space(struct btrfs_fs_i
+@@ -5097,7 +5075,7 @@ static int flush_space(struct btrfs_fs_i
  			ret = PTR_ERR(trans);
  			break;
  		}
--		ret = do_chunk_alloc(trans, btrfs_get_alloc_profile(root, 0),
-+		ret = btrfs_chunk_alloc(trans, btrfs_get_alloc_profile(root, 0),
+-		ret = do_chunk_alloc(trans,
++		ret = btrfs_chunk_alloc(trans,
+ 				     btrfs_metadata_alloc_profile(fs_info),
  				     (state == ALLOC_CHUNK) ?
  				     CHUNK_ALLOC_NO_FORCE : CHUNK_ALLOC_FORCE);
- 		btrfs_end_transaction(trans);
-@@ -8129,7 +8107,7 @@ loop:
+@@ -8143,7 +8121,7 @@ loop:
  				goto out;
  			}
  
@@ -124,7 +124,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  			/*
  			 * If we can't allocate a new chunk we've already looped
-@@ -9794,7 +9772,7 @@ again:
+@@ -9819,7 +9797,7 @@ again:
  	 */
  	alloc_flags = update_block_group_flags(fs_info, cache->flags);
  	if (alloc_flags != cache->flags) {
@@ -133,7 +133,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  				     CHUNK_ALLOC_FORCE);
  		/*
  		 * ENOSPC is allowed here, we may have enough space
-@@ -9811,7 +9789,7 @@ again:
+@@ -9836,7 +9814,7 @@ again:
  	if (!ret)
  		goto out;
  	alloc_flags = get_alloc_profile(fs_info, cache->space_info->flags);
@@ -142,7 +142,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (ret < 0)
  		goto out;
  	ret = inc_block_group_ro(cache, 0);
-@@ -9833,7 +9811,7 @@ int btrfs_force_chunk_alloc(struct btrfs
+@@ -9858,7 +9836,7 @@ int btrfs_force_chunk_alloc(struct btrfs
  {
  	u64 alloc_flags = get_alloc_profile(fs_info, type);
  

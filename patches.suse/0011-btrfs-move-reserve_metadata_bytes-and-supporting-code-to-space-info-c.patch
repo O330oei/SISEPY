@@ -12,10 +12,10 @@ Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Acked-by: Nikolay Borisov <nborisov@suse.com>
 ---
- fs/btrfs/extent-tree.c |  695 -------------------------------------------------
- fs/btrfs/space-info.c  |  686 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/btrfs/extent-tree.c |  696 -------------------------------------------------
+ fs/btrfs/space-info.c  |  687 ++++++++++++++++++++++++++++++++++++++++++++++++
  fs/btrfs/space-info.h  |    4 
- 3 files changed, 695 insertions(+), 690 deletions(-)
+ 3 files changed, 696 insertions(+), 691 deletions(-)
 
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
@@ -30,7 +30,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  static noinline int
  block_group_cache_done(struct btrfs_block_group_cache *cache)
-@@ -4564,687 +4560,6 @@ out:
+@@ -4578,688 +4574,6 @@ out:
  	return ret;
  }
  
@@ -294,7 +294,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 -			ret = PTR_ERR(trans);
 -			break;
 -		}
--		ret = btrfs_chunk_alloc(trans, btrfs_get_alloc_profile(root, 0),
+-		ret = btrfs_chunk_alloc(trans,
+-				     btrfs_metadata_alloc_profile(fs_info),
 -				     (state == ALLOC_CHUNK) ?
 -				     CHUNK_ALLOC_NO_FORCE : CHUNK_ALLOC_FORCE);
 -		btrfs_end_transaction(trans);
@@ -718,7 +719,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  static struct btrfs_block_rsv *get_block_rsv(
  					const struct btrfs_trans_handle *trans,
  					const struct btrfs_root *root)
-@@ -5391,7 +4706,7 @@ int btrfs_delayed_refs_rsv_refill(struct
+@@ -5406,7 +4720,7 @@ int btrfs_delayed_refs_rsv_refill(struct
  	if (!num_bytes)
  		return 0;
  
@@ -727,7 +728,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  				     num_bytes, flush);
  	if (ret)
  		return ret;
-@@ -5523,7 +4838,7 @@ int btrfs_block_rsv_add(struct btrfs_roo
+@@ -5538,7 +4852,7 @@ int btrfs_block_rsv_add(struct btrfs_roo
  	if (num_bytes == 0)
  		return 0;
  
@@ -736,7 +737,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (!ret) {
  		block_rsv_add_bytes(block_rsv, num_bytes, 1);
  		return 0;
-@@ -5570,7 +4885,7 @@ int btrfs_block_rsv_refill(struct btrfs_
+@@ -5585,7 +4899,7 @@ int btrfs_block_rsv_refill(struct btrfs_
  	if (!ret)
  		return 0;
  
@@ -745,7 +746,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (!ret) {
  		block_rsv_add_bytes(block_rsv, num_bytes, 0);
  		return 0;
-@@ -5967,7 +5282,7 @@ int btrfs_delalloc_reserve_metadata(stru
+@@ -5982,7 +5296,7 @@ int btrfs_delalloc_reserve_metadata(stru
  	ret = btrfs_qgroup_reserve_meta_prealloc(root, qgroup_reserve, true);
  	if (ret)
  		goto out_fail;
@@ -754,7 +755,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  	if (ret)
  		goto out_qgroup;
  
-@@ -8218,7 +7533,7 @@ again:
+@@ -8233,7 +7547,7 @@ again:
  				"BTRFS: block rsv returned %d\n", ret);
  	}
  try_reserve:
@@ -775,7 +776,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  
  u64 btrfs_space_info_used(struct btrfs_space_info *s_info,
  			  bool may_use_included)
-@@ -399,3 +402,686 @@ again:
+@@ -403,3 +406,687 @@ again:
  		goto again;
  	up_read(&info->groups_sem);
  }
@@ -1041,7 +1042,8 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +			ret = PTR_ERR(trans);
 +			break;
 +		}
-+		ret = btrfs_chunk_alloc(trans, btrfs_get_alloc_profile(root, 0),
++		ret = btrfs_chunk_alloc(trans,
++				     btrfs_metadata_alloc_profile(fs_info),
 +				     (state == ALLOC_CHUNK) ?
 +				     CHUNK_ALLOC_NO_FORCE : CHUNK_ALLOC_FORCE);
 +		btrfs_end_transaction(trans);

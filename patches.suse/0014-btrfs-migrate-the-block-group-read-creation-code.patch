@@ -14,11 +14,11 @@ Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Acked-by: Nikolay Borisov <nborisov@suse.com>
 ---
- fs/btrfs/block-group.c |  620 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/btrfs/block-group.c |  618 +++++++++++++++++++++++++++++++++++++++++++++++
  fs/btrfs/block-group.h |    7 
- fs/btrfs/ctree.h       |    7 
- fs/btrfs/extent-tree.c |  621 -------------------------------------------------
- 4 files changed, 628 insertions(+), 627 deletions(-)
+ fs/btrfs/ctree.h       |    8 
+ fs/btrfs/extent-tree.c |  633 -------------------------------------------------
+ 4 files changed, 633 insertions(+), 633 deletions(-)
 
 --- a/fs/btrfs/block-group.c
 +++ b/fs/btrfs/block-group.c
@@ -77,7 +77,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
   * This will return the block group at or after bytenr if contains is 0, else
   * it will return the block group that contains the bytenr
   */
-@@ -1192,3 +1233,582 @@ next:
+@@ -1192,3 +1233,580 @@ next:
  	}
  	spin_unlock(&fs_info->unused_bgs_lock);
  }
@@ -361,8 +361,6 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +	return ret;
 +}
 +
-+extern u64 get_alloc_profile(struct btrfs_fs_info *fs_info, u64 orig_flags);
-+
 +int btrfs_read_block_groups(struct btrfs_fs_info *info)
 +{
 +	struct btrfs_path *path;
@@ -512,7 +510,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
 +	}
 +
 +	list_for_each_entry_rcu(space_info, &info->space_info, list) {
-+		if (!(get_alloc_profile(info, space_info->flags) &
++		if (!(btrfs_get_alloc_profile(info, space_info->flags) &
 +		      (BTRFS_BLOCK_GROUP_RAID10 |
 +		       BTRFS_BLOCK_GROUP_RAID1 |
 +		       BTRFS_BLOCK_GROUP_RAID5 |
@@ -678,7 +676,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  		struct btrfs_block_group_cache *cache)
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
-@@ -2530,17 +2530,10 @@ int btrfs_setup_space_cache(struct btrfs
+@@ -2530,20 +2530,14 @@ int btrfs_setup_space_cache(struct btrfs
  			    struct btrfs_fs_info *fs_info);
  int btrfs_extent_readonly(struct btrfs_fs_info *fs_info, u64 bytenr);
  int btrfs_free_block_groups(struct btrfs_fs_info *info);
@@ -693,9 +691,13 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  void btrfs_put_block_group_trimming(struct btrfs_block_group_cache *cache);
 -void btrfs_create_pending_block_groups(struct btrfs_trans_handle *trans,
 -				       struct btrfs_fs_info *fs_info);
- u64 btrfs_get_alloc_profile(struct btrfs_root *root, int data);
+ u64 btrfs_data_alloc_profile(struct btrfs_fs_info *fs_info);
+ u64 btrfs_metadata_alloc_profile(struct btrfs_fs_info *fs_info);
+ u64 btrfs_system_alloc_profile(struct btrfs_fs_info *fs_info);
++u64 btrfs_get_alloc_profile(struct btrfs_fs_info *fs_info, u64 orig_flags);
  void btrfs_clear_space_info_full(struct btrfs_fs_info *info);
  
+ enum btrfs_reserve_flush_enum {
 --- a/fs/btrfs/extent-tree.c
 +++ b/fs/btrfs/extent-tree.c
 @@ -81,46 +81,6 @@ static int block_group_bits(struct btrfs
@@ -836,11 +838,57 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  }
  
 -static u64 get_alloc_profile(struct btrfs_fs_info *fs_info, u64 orig_flags)
-+u64 get_alloc_profile(struct btrfs_fs_info *fs_info, u64 orig_flags)
++u64 btrfs_get_alloc_profile(struct btrfs_fs_info *fs_info, u64 orig_flags)
  {
  	unsigned seq;
  	u64 flags;
-@@ -7103,86 +6991,6 @@ out:
+@@ -3473,23 +3361,23 @@ static u64 get_alloc_profile_by_root(str
+ 	else
+ 		flags = BTRFS_BLOCK_GROUP_METADATA;
+ 
+-	ret = get_alloc_profile(fs_info, flags);
++	ret = btrfs_get_alloc_profile(fs_info, flags);
+ 	return ret;
+ }
+ 
+ u64 btrfs_data_alloc_profile(struct btrfs_fs_info *fs_info)
+ {
+-	return get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_DATA);
++	return btrfs_get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_DATA);
+ }
+ 
+ u64 btrfs_metadata_alloc_profile(struct btrfs_fs_info *fs_info)
+ {
+-	return get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_METADATA);
++	return btrfs_get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_METADATA);
+ }
+ 
+ u64 btrfs_system_alloc_profile(struct btrfs_fs_info *fs_info)
+ {
+-	return get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_SYSTEM);
++	return btrfs_get_alloc_profile(fs_info, BTRFS_BLOCK_GROUP_SYSTEM);
+ }
+ 
+ static void force_metadata_allocation(struct btrfs_fs_info *info)
+@@ -6885,7 +6773,7 @@ again:
+ 	ret = __btrfs_inc_block_group_ro(cache, 0);
+ 	if (!ret)
+ 		goto out;
+-	alloc_flags = get_alloc_profile(fs_info, cache->space_info->flags);
++	alloc_flags = btrfs_get_alloc_profile(fs_info, cache->space_info->flags);
+ 	ret = btrfs_chunk_alloc(trans, alloc_flags, CHUNK_ALLOC_FORCE);
+ 	if (ret < 0)
+ 		goto out;
+@@ -6906,7 +6794,7 @@ out:
+ int btrfs_force_chunk_alloc(struct btrfs_trans_handle *trans,
+ 			    struct btrfs_fs_info *fs_info, u64 type)
+ {
+-	u64 alloc_flags = get_alloc_profile(fs_info, type);
++	u64 alloc_flags = btrfs_get_alloc_profile(fs_info, type);
+ 
+ 	return btrfs_chunk_alloc(trans, alloc_flags, CHUNK_ALLOC_FORCE);
+ }
+@@ -7117,86 +7005,6 @@ out:
  	return ret;
  }
  
@@ -927,7 +975,7 @@ Acked-by: Nikolay Borisov <nborisov@suse.com>
  void btrfs_put_block_group_cache(struct btrfs_fs_info *info)
  {
  	struct btrfs_block_group_cache *block_group;
-@@ -7352,433 +7160,6 @@ void btrfs_add_raid_kobjects(struct btrf
+@@ -7366,433 +7174,6 @@ void btrfs_add_raid_kobjects(struct btrf
  			   "failed to add kobject for block cache, ignoring");
  }
  
