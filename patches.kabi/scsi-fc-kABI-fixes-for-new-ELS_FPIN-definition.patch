@@ -5,16 +5,16 @@ Patch-Mainline: never, kABI fix for SLE15-SP1
 References: bsc#1136217,jsc#SLE-4722
 
 Signed-off-by: Hannes Reinecke <hare@suse.com>
+[dwagner: Added ELS_RDF definitions]
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
 ---
- include/scsi/scsi_transport_fc.h |  2 ++
- include/uapi/scsi/fc/fc_els.h    | 67 ++++++++++++++++++++++++++++++++++++++++
+ include/scsi/scsi_transport_fc.h |    2 +
+ include/uapi/scsi/fc/fc_els.h    |   67 +++++++++++++++++++++++++++++++++++++++
  2 files changed, 69 insertions(+)
 
-diff --git a/include/scsi/scsi_transport_fc.h b/include/scsi/scsi_transport_fc.h
-index 20a6dddc6833..a2a785f03d24 100644
 --- a/include/scsi/scsi_transport_fc.h
 +++ b/include/scsi/scsi_transport_fc.h
-@@ -473,7 +473,9 @@ enum fc_host_event_code  {
+@@ -476,7 +476,9 @@ enum fc_host_event_code  {
  	FCH_EVT_PORT_ONLINE		= 0x202,
  	FCH_EVT_PORT_FABRIC		= 0x204,
  	FCH_EVT_LINK_UNKNOWN		= 0x500,
@@ -24,21 +24,20 @@ index 20a6dddc6833..a2a785f03d24 100644
  	FCH_EVT_VENDOR_UNIQUE		= 0xffff,
  };
  
-diff --git a/include/uapi/scsi/fc/fc_els.h b/include/uapi/scsi/fc/fc_els.h
-index 30f2472c0711..0ab25a7dbe02 100644
 --- a/include/uapi/scsi/fc/fc_els.h
 +++ b/include/uapi/scsi/fc/fc_els.h
-@@ -51,7 +51,9 @@ enum fc_els_cmd {
+@@ -52,8 +52,10 @@ enum fc_els_cmd {
  	ELS_RRQ =	0x12,	/* reinstate recovery qualifier */
  	ELS_REC =	0x13,	/* read exchange concise */
  	ELS_SRR =	0x14,	/* sequence retransmission request */
 +#ifndef __GENKSYMS__
  	ELS_FPIN =	0x16,	/* Fabric Performance Impact Notification */
+ 	ELS_RDF =	0x19,	/* Register Diagnostic Functions */
 +#endif
  	ELS_PRLI =	0x20,	/* process login */
  	ELS_PRLO =	0x21,	/* process logout */
  	ELS_SCN =	0x22,	/* state change notification */
-@@ -98,6 +100,70 @@ enum fc_els_cmd {
+@@ -100,6 +102,70 @@ enum fc_els_cmd {
   * Initializer useful for decoding table.
   * Please keep this in sync with the above definitions.
   */
@@ -109,7 +108,7 @@ index 30f2472c0711..0ab25a7dbe02 100644
  #define	FC_ELS_CMDS_INIT {			\
  	[ELS_LS_RJT] =	"LS_RJT",		\
  	[ELS_LS_ACC] =	"LS_ACC",		\
-@@ -161,6 +227,7 @@ enum fc_els_cmd {
+@@ -164,6 +230,7 @@ enum fc_els_cmd {
  	[ELS_LKA] =	"LKA",			\
  	[ELS_AUTH_ELS] = "AUTH_ELS",		\
  }
@@ -117,6 +116,3 @@ index 30f2472c0711..0ab25a7dbe02 100644
  
  /*
   * LS_ACC payload.
--- 
-2.16.4
-
