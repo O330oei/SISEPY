@@ -1,8 +1,7 @@
 From: James Smart <jsmart2021@gmail.com>
 Date: Mon, 27 Jan 2020 16:23:12 -0800
 Subject: scsi: lpfc: Copyright updates for 12.6.0.4 patches
-Patch-mainline: Queued in subsystem maintainer repository
-Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi.git
+Patch-mainline: v5.7-rc1
 Git-commit: 145e5a8a5cbd0c608dfe653c92edb70a580bdbf6
 References: bsc#1164777 bsc#1164780 bsc#1165211
 

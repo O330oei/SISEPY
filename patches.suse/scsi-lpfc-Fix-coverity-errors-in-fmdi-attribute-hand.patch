@@ -1,8 +1,7 @@
 From: James Smart <jsmart2021@gmail.com>
 Date: Mon, 27 Jan 2020 16:23:07 -0800
 Subject: scsi: lpfc: Fix coverity errors in fmdi attribute handling
-Patch-mainline: Queued in subsystem maintainer repository
-Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi.git
+Patch-mainline: v5.7-rc1
 Git-commit: 4cb9e1ddaa145be9ed67b6a7de98ca705a43f998
 References: bsc#1164777 bsc#1164780 bsc#1165211
 

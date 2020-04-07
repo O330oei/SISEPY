@@ -4,8 +4,7 @@ Subject: scsi: lpfc: Fix compiler warning on frame size
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Patch-mainline: Queued in subsystem maintainer repository
-Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/jejb/scsi.git
+Patch-mainline: v5.7-rc1
 Git-commit: a99c80742af4b58bfd2d16cada8ee73cb9618649
 References: bsc#1164777 bsc#1164780 bsc#1165211
 
