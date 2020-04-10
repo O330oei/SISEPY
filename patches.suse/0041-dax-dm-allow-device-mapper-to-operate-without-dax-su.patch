@@ -226,7 +226,7 @@ Acked-by: Jan Kara <jack@suse.cz>
 +	}
  	md->dax_dev = dax_dev;
  
- 	add_disk(md->disk);
+ 	add_disk_no_queue_reg(md->disk);
 --- a/include/linux/dax.h
 +++ b/include/linux/dax.h
 @@ -25,16 +25,39 @@ extern struct attribute_group dax_attrib
