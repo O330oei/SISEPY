@@ -1,7 +1,6 @@
 From: Juergen Gross <jgross@suse.com>
 Date: Thu, 14 Feb 2019 11:42:39 +0100
-Patch-mainline: Queued in subsystem maintainer repository
-Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/xen/tip.git
+Patch-mainline: v5.1-rc1
 Git-commit: 357b4da50a62e2fd70eacee21cdbd22d4c7a7b60
 References: bsc#1117645
 Subject: x86: respect memory size limiting via mem= parameter
