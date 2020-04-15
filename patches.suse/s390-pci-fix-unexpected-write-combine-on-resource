@@ -3,7 +3,7 @@ Date: Thu, 27 Feb 2020 12:17:18 +0100
 Subject: s390/pci: Fix unexpected write combine on resource
 Git-commit: df057c914a9c219ac8b8ed22caf7da2f80c1fe26
 Patch-mainline: v5.6-rc5
-References: git-fixes
+References: bsc#1168552 LTC#184761 git-fixes
 
 In the initial MIO support introduced in
 

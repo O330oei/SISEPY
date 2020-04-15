@@ -92,7 +92,7 @@ Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 --- a/fs/btrfs/ctree.h
 +++ b/fs/btrfs/ctree.h
 @@ -763,8 +763,6 @@ struct btrfs_delayed_root;
- #define BTRFS_FS_BALANCE_RUNNING		18
+ #define BTRFS_FS_CLEANER_RUNNING		19
  
  struct btrfs_fs_info {
 -	u8 fsid[BTRFS_FSID_SIZE];
@@ -328,4 +328,4 @@ Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 +		memcpy(__entry->fsid, fs_info->fs_devices->fsid, BTRFS_UUID_SIZE);
  		__entry->flags		=	flags;
  		__entry->num_bytes	=	num_bytes;
- 		__entry->orig_bytes	=	orig_bytes;
+ 		__entry->state		=	state;
