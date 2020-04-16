@@ -5,8 +5,7 @@ Subject: [PATCH] powerpc/pseries/ddw: Extend upper limit for huge DMA window
  for persistent memory
 
 References: FATE#327775 bsc#1142685 ltc#179509
-Patch-mainline: queued
-Git-repo: git://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git
+Patch-mainline: v5.7-rc1
 Git-commit: 54fc3c681ded9437e4548e2501dc1136b23cfa9a
 
 Unlike normal memory ("memory" compatible type in the FDT), the
