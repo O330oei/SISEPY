@@ -37,6 +37,9 @@ x86_spec_ctrl_restore_host	PASS
 x86_spec_ctrl_set		PASS
 x86_spec_ctrl_set_guest		PASS
 
+# struct posix_clock change (CVE-2020-10690 bsc#1170056)
+posix_clock_register		PASS
+
 # only inter-module local symbols
 drivers/gpu/drm/meson/*		PASS
 
